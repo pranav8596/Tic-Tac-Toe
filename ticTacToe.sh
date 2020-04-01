@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 #Declaration of the Game Board Array
 declare -a gameBoard
@@ -18,17 +18,31 @@ function symbolAssignment() {
 		playerSymbol=O
 		computerSymbol=X
 	fi
-	echo "Symbol Assigned to Player   :" $playerSymbol
-	echo "Symbol Assigned to Computer :" $computerSymbol
+	echo "Symbol Assigned to Player   : $playerSymbol"
+	echo "Symbol Assigned to Computer : $computerSymbol"
+	echo
 }
 
+#To check who plays First
 function checkWhoPlaysFirst() {
 	if [ $((RANDOM%2)) -eq 0 ]
 	then
-		echo "Player plays First"
+		echo -e "Player plays First\n"
 	else
-		echo "Computer plays First"
+		echo -e "Computer plays First\n"
 	fi
 }
-symbolAssignment
+
+function displayBoard() {
+	for ((i=1; i<=9; i=$(($i+3)) ))
+	do
+		echo "-------------"
+		echo "| ${gameBoard[$i]} | ${gameBoard[$(($i+1))]} | ${gameBoard[$(($i+2))]} |"
+	done
+	echo "-------------"
+}
+
+resetTheBoard
 checkWhoPlaysFirst
+symbolAssignment
+displayBoard
