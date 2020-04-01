@@ -47,7 +47,6 @@ function displayBoard() {
 #To check for all winning conditions
 function checkWinConditions(){
 	symbol=$1
-	isWin=0
 	#Check for Rows
 	for (( i=1; i<=9; i=$(($i+3 )) ))
 	do
@@ -153,9 +152,34 @@ function computerCheckWin() {
 	done
 }
 
+#To check if player can win, then plays to Block it
+function computerBlockPlayer() {
+	for ((k=1; k<=9; k++))
+	do
+		if [[ ${gameBoard[$k]} != $playerSymbol ]] && [[ ${gameBoard[$k]} != $computerSymbol ]]
+		then
+			gameBoard[$k]=$playerSymbol
+			checkWinConditions $playerSymbol
+			if [[ $isWin == 1 ]]
+         then
+				echo "Its Computer's turn. Computer's move(block): $k"
+				gameBoard[$k]=$computerSymbol
+				((count++))
+				displayBoard
+				switchPlayer=0
+				isWin=0
+				switchThePlayers
+			else
+				gameBoard[$k]=$k
+			fi
+		fi
+	done
+
+}
 #Computer plays on getting its turn
 function computersTurn() {
 	computerCheckWin $playerSymbol $computerSymbol
+	computerBlockPlayer $playerSymbol $computerSymbol
 	computerPosition=$((RANDOM%9+1))
 	echo "Its Computer's turn. Computer's move:  $computerPosition"
 	switchSymbol=2
@@ -166,7 +190,6 @@ function computersTurn() {
 }
 
 #To switch the turn between Player and Computer
-count=0
 function switchThePlayers() {
 	while [[ $count != 9 ]]
 	do
