@@ -47,6 +47,7 @@ function displayBoard() {
 #To check for all winning conditions
 function checkWinConditions(){
 	symbol=$1
+	isWin=0
 	#Check for Rows
 	for (( i=1; i<=9; i=$(($i+3 )) ))
 	do
@@ -167,7 +168,6 @@ function computerBlockPlayer() {
 				((count++))
 				displayBoard
 				switchPlayer=0
-				isWin=0
 				switchThePlayers
 			else
 				gameBoard[$k]=$k
