@@ -1,7 +1,8 @@
 #!/bin/bash
 
-#Declaration of the Game Board Array
+#Declaration of the Arrays and Dictionaries
 declare -a gameBoard
+declare -A corners
 
 #To reset the Game Board
 function resetTheBoard() {
@@ -176,10 +177,34 @@ function computerBlockPlayer() {
 	done
 
 }
+
+function computerTakeCorners() {
+	corners[1]=1
+	corners[2]=3
+	corners[3]=7
+	corners[4]=9
+	random=$((RANDOM%4+1))	
+	cornerPosition=${corners[$random]}
+	if [[ ${gameBoard[$cornerPosition]} != $playerSymbol ]] && [[ ${gameBoard[$cornerPosition]} != $computerSymbol ]]
+	then
+		echo "Its Computer's turn. Computer's move(corners): $cornerPosition"
+		gameBoard[$cornerPosition]=$computerSymbol
+		((count++))
+		displayBoard
+		switchPlayer=0
+		switchThePlayers
+	else
+		echo "This position is not Empty. Enter again."
+		computerTakeCorners $playerSymbol $computerSymbol 
+	fi
+}
+
+
 #Computer plays on getting its turn
 function computersTurn() {
 	computerCheckWin $playerSymbol $computerSymbol
 	computerBlockPlayer $playerSymbol $computerSymbol
+	computerTakeCorners $playerSymbol $computerSymbol
 	computerPosition=$((RANDOM%9+1))
 	echo "Its Computer's turn. Computer's move:  $computerPosition"
 	switchSymbol=2
