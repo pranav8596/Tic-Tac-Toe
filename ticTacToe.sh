@@ -109,15 +109,14 @@ function startThePlay() {
 	checkWhoPlaysFirst
 	symbolAssignment
 	displayBoard
-	while [[ $count -ne 10 ]]
+	while [[ $count -ne 9 ]]
 	do
-		checkTie
 		read -p "Enter your position: " position
 		isEmpty
 		displayBoard
 		checkWinConditions
 	done
-
+	checkTie
 }
 
 #Main
