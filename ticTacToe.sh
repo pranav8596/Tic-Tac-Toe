@@ -10,7 +10,7 @@ function resetTheBoard() {
 
 #To assign a symbol to Player and Computer
 function symbolAssignment() {
-	if [ $((RANDOM%2)) -eq 0 ]
+	if [ $((RANDOM%2)) == 0 ]
 	then
 		playerSymbol=X
 		computerSymbol=O
@@ -24,7 +24,7 @@ function symbolAssignment() {
 
 #To check who plays First
 function checkWhoPlaysFirst() {
-	if [ $((RANDOM%2)) -eq 0 ]
+	if [ $((RANDOM%2)) == 0 ]
 	then
 		echo "Player plays First"
 		switchPlayer=0
@@ -47,6 +47,7 @@ function displayBoard() {
 #To check for all winning conditions
 function checkWinConditions(){
 	symbol=$1
+	isWin=0
 	#Check for Rows
 	for (( i=1; i<=9; i=$(($i+3 )) ))
 	do
@@ -73,18 +74,20 @@ function checkWinConditions(){
 	then
 		isWin=1
 	fi
+}
 
-	#To determine who has won
-	if [[ $isWin -eq 1 ]]
+#To determine the winning result
+function winningResult() {
+	if [[ $isWin == 1 ]]
 	then
-		echo "$2 Won"
+		echo "$1 Won"
 		exit
 	fi
 }
 
 #To check for tie condtion
 function checkTie() {
-	if [[ $count -eq 9 ]]
+	if [[ $count == 9 ]]
 	then
 		echo -e "Its a TIE!\n"
 		exit
@@ -93,7 +96,7 @@ function checkTie() {
 
 #To insert symbol at a particular position
 function insertSymbol() {
-	if [[ $switchSymbol -eq 1 ]]
+	if [[ $switchSymbol == 1 ]]
 	then
 		gameBoard[$position]=$playerSymbol
 	else
@@ -121,34 +124,60 @@ function insertSymbol() {
 	fi
 }
 
+#Player plays on getting its turn
 function playersTurn() {
 	read -p "Its Player's turn. Enter your move: " playerPosition
 	switchSymbol=1
 	isEmpty $playerPosition $playerSymbol $computerSymbol
-	checkWinConditions $playerSymbol "PLAYER"
+	checkWinConditions $playerSymbol
+   winningResult "PLAYER"
 	switchPlayer=1
 }
 
+#To check the win posibilities of computer and play the move
+function computerCheckWin() {
+	for ((j=1; j<=9; j++))
+	do
+		if [[ ${gameBoard[$j]} != $playerSymbol ]] && [[ ${gameBoard[$j]} != $computerSymbol ]]
+		then
+			gameBoard[$j]=$computerSymbol
+			checkWinConditions $computerSymbol
+			if [[ $isWin == 1 ]]
+			then
+				echo "Its Computer's turn. Computer's move(win): $j"
+				displayBoard
+			fi
+			winningResult "COMPUTER"
+			gameBoard[$j]=$j
+		fi
+	done
+}
+
+#Computer plays on getting its turn
 function computersTurn() {
+	computerCheckWin $playerSymbol $computerSymbol
 	computerPosition=$((RANDOM%9+1))
 	echo "Its Computer's turn. Computer's move:  $computerPosition"
 	switchSymbol=2
 	isEmpty $computerPosition $playerSymbol $computerSymbol
-	checkWinConditions $computerSymbol "COMPUTER"
+	checkWinConditions $computerSymbol
+	winningResult "COMPUTER"
 	switchPlayer=0
 }
 
+#To switch the turn between Player and Computer
+count=0
 function switchThePlayers() {
- while [[ $count -ne 9 ]]
-   do
-      if [[ $switchPlayer -eq 0 ]]
-      then
-         playersTurn
-      else
-         computersTurn
-      fi
-   done
-   checkTie
+	while [[ $count != 9 ]]
+	do
+		if [[ $switchPlayer == 0 ]]
+		then
+			playersTurn
+		else
+			computersTurn
+		fi
+	done
+	checkTie
 }
 
 #To start the Tic Toc Toe Game Play
