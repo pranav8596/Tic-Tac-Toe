@@ -21,3 +21,14 @@ function symbolAssignment() {
 	echo "Symbol Assigned to Player   :" $playerSymbol
 	echo "Symbol Assigned to Computer :" $computerSymbol
 }
+
+function checkWhoPlaysFirst() {
+	if [ $((RANDOM%2)) -eq 0 ]
+	then
+		echo "Player plays First"
+	else
+		echo "Computer plays First"
+	fi
+}
+symbolAssignment
+checkWhoPlaysFirst
