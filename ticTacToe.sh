@@ -3,6 +3,7 @@
 #Declaration of the Arrays and Dictionaries
 declare -a gameBoard
 declare -A corners
+declare -A sides
 
 #To reset the Game Board
 function resetTheBoard() {
@@ -213,6 +214,28 @@ function computerTakeCentre(){
 	fi
 }
 
+#To let the computer take of the availabe sides
+function computerTakeSides(){
+   sides[1]=2
+   sides[2]=4
+   sides[3]=6
+   sides[4]=8
+   randomSide=$((RANDOM%4+1)) 
+   sidePosition=${sides[$randomSide]}
+   if [[ ${gameBoard[$sidePosition]} != $playerSymbol ]] && [[ ${gameBoard[$sidePosition]} != $computerSymbol ]]
+   then
+		gameBoard[$sidePosition]=$computerSymbol
+		echo "Its Computer's turn. Computer's move(sides): $sidePosition"
+      ((count++))
+      displayBoard
+		switchPlayer=0
+		switchThePlayers
+   else
+      echo "This position is not Empty. Enter again."
+      computerTakeSides $playerSymbol $computerSymbol
+   fi
+
+}
 
 #Computer plays on getting its turn
 function computersTurn() {
@@ -220,6 +243,7 @@ function computersTurn() {
 	computerBlockPlayer $playerSymbol $computerSymbol
 	computerTakeCorners $playerSymbol $computerSymbol
 	computerTakeCentre
+	computerTakeSides
 	computerPosition=$((RANDOM%9+1))
 	echo "Its Computer's turn. Computer's move:  $computerPosition"
 	switchSymbol=2
