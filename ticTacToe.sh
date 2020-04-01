@@ -131,7 +131,7 @@ function playersTurn() {
 	switchSymbol=1
 	isEmpty $playerPosition $playerSymbol $computerSymbol
 	checkWinConditions $playerSymbol
-   winningResult "PLAYER"
+	winningResult "PLAYER"
 	switchPlayer=1
 }
 
@@ -163,7 +163,7 @@ function computerBlockPlayer() {
 			gameBoard[$k]=$playerSymbol
 			checkWinConditions $playerSymbol
 			if [[ $isWin == 1 ]]
-         then
+			then
 				echo "Its Computer's turn. Computer's move(block): $k"
 				gameBoard[$k]=$computerSymbol
 				((count++))
@@ -178,6 +178,7 @@ function computerBlockPlayer() {
 
 }
 
+#To let the computer to take of the corners
 function computerTakeCorners() {
 	corners[1]=1
 	corners[2]=3
@@ -199,12 +200,26 @@ function computerTakeCorners() {
 	fi
 }
 
+#To let the computer take centre
+function computerTakeCentre(){
+	center=5
+	if [[ ${gameBoard[$center]} != $playerSymbol ]] && [[ ${gameBoard[$center]} != $computerSymbol ]]
+	then
+		gameBoard[5]=$computerSymbol
+		echo "Its Computer's turn. Computer's move(centre): $center"
+		displayBoard
+		switchPlayer=0
+		switchThePlayers
+	fi
+}
+
 
 #Computer plays on getting its turn
 function computersTurn() {
 	computerCheckWin $playerSymbol $computerSymbol
 	computerBlockPlayer $playerSymbol $computerSymbol
 	computerTakeCorners $playerSymbol $computerSymbol
+	computerTakeCentre
 	computerPosition=$((RANDOM%9+1))
 	echo "Its Computer's turn. Computer's move:  $computerPosition"
 	switchSymbol=2
