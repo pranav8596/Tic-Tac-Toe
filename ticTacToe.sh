@@ -199,7 +199,7 @@ function computerTakeCentre(){
 	center=5
 	if [[ ${gameBoard[$center]} != $playerSymbol ]] && [[ ${gameBoard[$center]} != $computerSymbol ]]
 	then
-      echo "Its Computer's turn. Computer's move(centre): $center"
+		echo "Its Computer's turn. Computer's move(centre): $center"
 		gameBoard[5]=$computerSymbol
 		((count++))
 		displayBoard
@@ -214,22 +214,22 @@ function computerTakeSides(){
    sides[2]=4
    sides[3]=6
    sides[4]=8
-   if [[ ${gameBoard[2]} != $playerSymbol && ${gameBoard[2]} != $computerSymbol ]] || [[ ${gameBoard[4]} != $playerSymbol && ${gameBoard[4]} != $computerSymbol ]] || [[  ${gameBoard[6]} != $playerSymbol && ${gameBoard[6]} != $computerSymbol ]] || [[ ${gameBoard[8]} != $playerSymbol && ${gameBoard[8]} != $computerSymbol ]]
-   then
+	if [[ ${gameBoard[2]} != $playerSymbol && ${gameBoard[2]} != $computerSymbol ]] || [[ ${gameBoard[4]} != $playerSymbol && ${gameBoard[4]} != $computerSymbol ]] || [[  ${gameBoard[6]} != $playerSymbol && ${gameBoard[6]} != $computerSymbol ]] || [[ ${gameBoard[8]} != $playerSymbol && ${gameBoard[8]} != $computerSymbol ]]
+	then
 		randomSide=$((RANDOM%4+1)) 
-   	sidePosition=${sides[$randomSide]}
+		sidePosition=${sides[$randomSide]}
 		echo "Its Computer's turn. Computer's move(sides): $sidePosition"
-   	if [[ ${gameBoard[$sidePosition]} != $playerSymbol ]] && [[ ${gameBoard[$sidePosition]} != $computerSymbol ]]
-   	then
+		if [[ ${gameBoard[$sidePosition]} != $playerSymbol ]] && [[ ${gameBoard[$sidePosition]} != $computerSymbol ]]
+		then
 			gameBoard[$sidePosition]=$computerSymbol
-      	((count++))
-      	displayBoard
+			((count++))
+			displayBoard
 			switchPlayer=0
 			switchThePlayers
-   	else
-      	echo "This position is not Empty. Enter again."
-      	computerTakeSides $playerSymbol $computerSymbol
-   	fi
+		else
+			echo "This position is not Empty. Enter again."
+			computerTakeSides $playerSymbol $computerSymbol
+		fi
 	fi
 }
 
