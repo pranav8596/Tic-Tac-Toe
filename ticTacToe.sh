@@ -5,35 +5,30 @@ declare -a gameBoard
 declare -A corners
 declare -A sides
 
+#Contants
+PLAY_FIRST=$((RANDOM%2))
+
 #To reset the Game Board
 function resetTheBoard() {
 	gameBoard=(0 1 2 3 4 5 6 7 8 9)
 }
 
 #To assign a symbol to Player and Computer
-function symbolAssignment() {
-	if [ $((RANDOM%2)) == 0 ]
+function tossAndAssignSymbols() {
+	if [ $PLAY_FIRST == 0 ]
 	then
+		echo "PLAYER plays First"
+		switchPlayer=0
 		playerSymbol=X
 		computerSymbol=O
 	else
+		echo "COMPUTER plays First"
+		switchPlayer=1
 		playerSymbol=O
 		computerSymbol=X
 	fi
 	echo "Symbol Assigned to Player   : $playerSymbol"
 	echo "Symbol Assigned to Computer  : $computerSymbol"
-}
-
-#To check who plays First
-function checkWhoPlaysFirst() {
-	if [ $((RANDOM%2)) == 0 ]
-	then
-		echo "Player plays First"
-		switchPlayer=0
-	else
-		echo "Computer plays First"
-		switchPlayer=1
-	fi
 }
 
 #To display to Game board
@@ -50,7 +45,14 @@ function displayBoard() {
 function checkWinConditions(){
 	symbol=$1
 	isWin=0
-	#Check for Rows
+	winConditionForRows
+	winConditionForColumns
+	winConditionForDiagonals
+
+}
+
+#Check winning for Rows
+function winConditionForRows() {
 	for (( i=1; i<=9; i=$(($i+3 )) ))
 	do
 		if [[ ${gameBoard[$i]} == $symbol ]] && [[ ${gameBoard[$i]} == ${gameBoard[$i+1]} ]] && [[ ${gameBoard[$i+1]} == ${gameBoard[$i+2]} ]]
@@ -58,8 +60,10 @@ function checkWinConditions(){
 			isWin=1
 		fi
 	done
+}
 
-	#Check for Columns
+#Check winning for Columns
+function winConditionForColumns() {
 	for (( i=1; i<=9; i++ ))
 	do
 		if [[ ${gameBoard[$i]} == $symbol ]] && [[ ${gameBoard[$i]} == ${gameBoard[$i+3]} ]] && [[ ${gameBoard[$i+3]} == ${gameBoard[$i+6]} ]]
@@ -67,8 +71,10 @@ function checkWinConditions(){
 			isWin=1
 		fi
 	done
+}
 
-	#Check for Diagonals
+#Check winning for Diagonals
+function winConditionForDiagonals() {
 	if [[ ${gameBoard[1]} == $symbol ]] && [[ ${gameBoard[1]} == ${gameBoard[5]} ]] && [[ ${gameBoard[5]} == ${gameBoard[9]} ]]
 	then
 		isWin=1
@@ -84,45 +90,6 @@ function winningResult() {
 	then
 		echo "$1 Won"
 		exit
-	fi
-}
-
-#To check for tie condtion
-function checkTie() {
-	if [[ $count == 9 ]]
-	then
-		echo -e "Its a TIE!\n"
-		exit
-	fi
-}
-
-#To insert symbol at a particular position
-function insertSymbol() {
-	if [[ $switchSymbol == 1 ]]
-	then
-		gameBoard[$position]=$playerSymbol
-	else
-		gameBoard[$position]=$computerSymbol
-	fi
-	((count++))
-}
-
-#To check if the position is Empty or Valid
-	function isEmpty() {
-	position=$1
-	if [[ $position -ge 1 ]] && [[ $position -le 9 ]]
-	then
-		if [[ ${gameBoard[$position]} != $playerSymbol ]] &&  [[ ${gameBoard[$position]} != $computerSymbol ]]
-		then
-			insertSymbol
-			displayBoard
-		else
-			echo "This position is not Empty. Enter again."
-			switchThePlayers
-		fi
-	else
-		echo "Invalid position!!"
-		switchThePlayers
 	fi
 }
 
@@ -166,7 +133,6 @@ function computerBlockPlayer() {
 			fi
 		fi
 	done
-
 }
 
 #To let the computer to take of the corners
@@ -177,59 +143,70 @@ function computerTakeCorners() {
 	corners[4]=9
 	if [[ ${gameBoard[1]} != $playerSymbol && ${gameBoard[1]} != $computerSymbol ]] || [[ ${gameBoard[3]} != $playerSymbol && ${gameBoard[3]} != $computerSymbol ]] || [[  ${gameBoard[7]} != $playerSymbol && ${gameBoard[7]} != $computerSymbol ]] || [[ ${gameBoard[9]} != $playerSymbol && ${gameBoard[9]} != $computerSymbol ]]
 	then
-		random=$((RANDOM%4+1))	
+		random=$((RANDOM%4+1))
 		cornerPosition=${corners[$random]}
 		echo "Its Computer's turn. Computer's move(corners): $cornerPosition"
-		if [[ ${gameBoard[$cornerPosition]} != $playerSymbol ]] && [[ ${gameBoard[$cornerPosition]} != $computerSymbol ]]
-		then
-			gameBoard[$cornerPosition]=$computerSymbol
-			((count++))
-			displayBoard
-			switchPlayer=0
-			switchThePlayers
-		else
-			echo "This position is not Empty. Enter again."
-			computerTakeCorners $playerSymbol $computerSymbol 
-		fi
+		isEmptyCell $cornerPosition
+		insertSymbol $cornerPosition $computerSymbol
+		switchPlayer=0
+		switchThePlayers
 	fi
 }
 
 #To let the computer take centre
 function computerTakeCentre(){
 	center=5
-	if [[ ${gameBoard[$center]} != $playerSymbol ]] && [[ ${gameBoard[$center]} != $computerSymbol ]]
+	isEmptyCell $center
+	echo "Its Computer's turn. Computer's move(centre): $center"
+	insertSymbol $center $computerSymbol
+	switchPlayer=0
+	switchThePlayers
+}
+
+#To let the computer take of the availabe sides
+function computerTakeSides(){
+	sides[1]=2
+	sides[2]=4
+	sides[3]=6
+	sides[4]=8
+	if [[ ${gameBoard[2]} != $playerSymbol && ${gameBoard[2]} != $computerSymbol ]] || [[ ${gameBoard[4]} != $playerSymbol && ${gameBoard[4]} != $computerSymbol ]] || [[  ${gameBoard[6]} != $playerSymbol && ${gameBoard[6]} != $computerSymbol ]] || [[ ${gameBoard[8]} != $playerSymbol && ${gameBoard[8]} != $computerSymbol ]]
 	then
-		echo "Its Computer's turn. Computer's move(centre): $center"
-		gameBoard[5]=$computerSymbol
-		((count++))
-		displayBoard
+		randomSide=$((RANDOM%4+1))
+		sidePosition=${sides[$randomSide]}
+		echo "Its Computer's turn. Computer's move(sides): $sidePosition"
+		isEmptyCell $sidePosition
+		insertSymbol $sidePosition $computerSymbol
 		switchPlayer=0
 		switchThePlayers
 	fi
 }
 
-#To let the computer take of the availabe sides
-function computerTakeSides(){
-   sides[1]=2
-   sides[2]=4
-   sides[3]=6
-   sides[4]=8
-	if [[ ${gameBoard[2]} != $playerSymbol && ${gameBoard[2]} != $computerSymbol ]] || [[ ${gameBoard[4]} != $playerSymbol && ${gameBoard[4]} != $computerSymbol ]] || [[  ${gameBoard[6]} != $playerSymbol && ${gameBoard[6]} != $computerSymbol ]] || [[ ${gameBoard[8]} != $playerSymbol && ${gameBoard[8]} != $computerSymbol ]]
+#To insert symbol at a particular position
+function insertSymbol() {
+	local position=$1
+	local symbol=$2
+	gameBoard[$position]=$symbol
+	((count++))
+	displayBoard
+}
+
+#To check if the entered position is valid
+function isvalidCell() {
+	local position=$1
+	if [[ $position -gt 9 ]] || [[ $position -lt 1 ]]
 	then
-		randomSide=$((RANDOM%4+1)) 
-		sidePosition=${sides[$randomSide]}
-		echo "Its Computer's turn. Computer's move(sides): $sidePosition"
-		if [[ ${gameBoard[$sidePosition]} != $playerSymbol ]] && [[ ${gameBoard[$sidePosition]} != $computerSymbol ]]
-		then
-			gameBoard[$sidePosition]=$computerSymbol
-			((count++))
-			displayBoard
-			switchPlayer=0
-			switchThePlayers
-		else
-			echo "This position is not Empty. Enter again."
-			computerTakeSides $playerSymbol $computerSymbol
-		fi
+		echo "Invalid position!!"
+		switchThePlayers
+	fi
+}
+
+#To check if the entered position is empty
+function isEmptyCell() {
+	local position=$1
+	if [[ ${gameBoard[$position]} == $playerSymbol || ${gameBoard[$position]} == $computerSymbol ]]
+	then
+		echo "This position is not Empty. Enter again."
+		switchThePlayers
 	fi
 }
 
@@ -244,12 +221,22 @@ function computersTurn() {
 
 #Player plays on getting its turn
 function playersTurn() {
-   read -p "Its Player's turn. Enter your move: " playerPosition
-   switchSymbol=1
-   isEmpty $playerPosition $playerSymbol $computerSymbol
-   checkWinConditions $playerSymbol
-   winningResult "PLAYER"
-   switchPlayer=1
+	read -p "Its Player's turn. Enter your move: " playerPosition
+	isvalidCell $playerPosition
+	isEmptyCell $playerPosition
+	insertSymbol $playerPosition $playerSymbol
+	checkWinConditions $playerSymbol
+	winningResult "PLAYER"
+	switchPlayer=1
+}
+
+#To check for tie condtion
+function checkTie() {
+	if [[ $count == 9 ]]
+	then
+		echo -e "Its a TIE!\n"
+		exit
+	fi
 }
 
 #To switch the turn between Player and Computer
@@ -269,8 +256,7 @@ function switchThePlayers() {
 #To start the Tic Toc Toe Game Play
 function ticTacToeGame() {
 	resetTheBoard
-	checkWhoPlaysFirst
-	symbolAssignment
+	tossAndAssignSymbols
 	displayBoard
 	switchThePlayers
 }
