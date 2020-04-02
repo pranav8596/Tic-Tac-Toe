@@ -126,16 +126,6 @@ function insertSymbol() {
 	fi
 }
 
-#Player plays on getting its turn
-function playersTurn() {
-	read -p "Its Player's turn. Enter your move: " playerPosition
-	switchSymbol=1
-	isEmpty $playerPosition $playerSymbol $computerSymbol
-	checkWinConditions $playerSymbol
-	winningResult "PLAYER"
-	switchPlayer=1
-}
-
 #To check the win posibilities of computer and play the move
 function computerCheckWin() {
 	for ((j=1; j<=9; j++))
@@ -185,19 +175,22 @@ function computerTakeCorners() {
 	corners[2]=3
 	corners[3]=7
 	corners[4]=9
-	random=$((RANDOM%4+1))	
-	cornerPosition=${corners[$random]}
-	if [[ ${gameBoard[$cornerPosition]} != $playerSymbol ]] && [[ ${gameBoard[$cornerPosition]} != $computerSymbol ]]
+	if [[ ${gameBoard[1]} != $playerSymbol && ${gameBoard[1]} != $computerSymbol ]] || [[ ${gameBoard[3]} != $playerSymbol && ${gameBoard[3]} != $computerSymbol ]] || [[  ${gameBoard[7]} != $playerSymbol && ${gameBoard[7]} != $computerSymbol ]] || [[ ${gameBoard[9]} != $playerSymbol && ${gameBoard[9]} != $computerSymbol ]]
 	then
+		random=$((RANDOM%4+1))	
+		cornerPosition=${corners[$random]}
 		echo "Its Computer's turn. Computer's move(corners): $cornerPosition"
-		gameBoard[$cornerPosition]=$computerSymbol
-		((count++))
-		displayBoard
-		switchPlayer=0
-		switchThePlayers
-	else
-		echo "This position is not Empty. Enter again."
-		computerTakeCorners $playerSymbol $computerSymbol 
+		if [[ ${gameBoard[$cornerPosition]} != $playerSymbol ]] && [[ ${gameBoard[$cornerPosition]} != $computerSymbol ]]
+		then
+			gameBoard[$cornerPosition]=$computerSymbol
+			((count++))
+			displayBoard
+			switchPlayer=0
+			switchThePlayers
+		else
+			echo "This position is not Empty. Enter again."
+			computerTakeCorners $playerSymbol $computerSymbol 
+		fi
 	fi
 }
 
@@ -206,8 +199,9 @@ function computerTakeCentre(){
 	center=5
 	if [[ ${gameBoard[$center]} != $playerSymbol ]] && [[ ${gameBoard[$center]} != $computerSymbol ]]
 	then
+      echo "Its Computer's turn. Computer's move(centre): $center"
 		gameBoard[5]=$computerSymbol
-		echo "Its Computer's turn. Computer's move(centre): $center"
+		((count++))
 		displayBoard
 		switchPlayer=0
 		switchThePlayers
@@ -220,37 +214,42 @@ function computerTakeSides(){
    sides[2]=4
    sides[3]=6
    sides[4]=8
-   randomSide=$((RANDOM%4+1)) 
-   sidePosition=${sides[$randomSide]}
-   if [[ ${gameBoard[$sidePosition]} != $playerSymbol ]] && [[ ${gameBoard[$sidePosition]} != $computerSymbol ]]
+   if [[ ${gameBoard[2]} != $playerSymbol && ${gameBoard[2]} != $computerSymbol ]] || [[ ${gameBoard[4]} != $playerSymbol && ${gameBoard[4]} != $computerSymbol ]] || [[  ${gameBoard[6]} != $playerSymbol && ${gameBoard[6]} != $computerSymbol ]] || [[ ${gameBoard[8]} != $playerSymbol && ${gameBoard[8]} != $computerSymbol ]]
    then
-		gameBoard[$sidePosition]=$computerSymbol
+		randomSide=$((RANDOM%4+1)) 
+   	sidePosition=${sides[$randomSide]}
 		echo "Its Computer's turn. Computer's move(sides): $sidePosition"
-      ((count++))
-      displayBoard
-		switchPlayer=0
-		switchThePlayers
-   else
-      echo "This position is not Empty. Enter again."
-      computerTakeSides $playerSymbol $computerSymbol
-   fi
-
+   	if [[ ${gameBoard[$sidePosition]} != $playerSymbol ]] && [[ ${gameBoard[$sidePosition]} != $computerSymbol ]]
+   	then
+			gameBoard[$sidePosition]=$computerSymbol
+      	((count++))
+      	displayBoard
+			switchPlayer=0
+			switchThePlayers
+   	else
+      	echo "This position is not Empty. Enter again."
+      	computerTakeSides $playerSymbol $computerSymbol
+   	fi
+	fi
 }
 
 #Computer plays on getting its turn
 function computersTurn() {
-	computerCheckWin $playerSymbol $computerSymbol
-	computerBlockPlayer $playerSymbol $computerSymbol
-	computerTakeCorners $playerSymbol $computerSymbol
+	computerCheckWin
+	computerBlockPlayer
+	computerTakeCorners
 	computerTakeCentre
 	computerTakeSides
-	computerPosition=$((RANDOM%9+1))
-	echo "Its Computer's turn. Computer's move:  $computerPosition"
-	switchSymbol=2
-	isEmpty $computerPosition $playerSymbol $computerSymbol
-	checkWinConditions $computerSymbol
-	winningResult "COMPUTER"
-	switchPlayer=0
+}
+
+#Player plays on getting its turn
+function playersTurn() {
+   read -p "Its Player's turn. Enter your move: " playerPosition
+   switchSymbol=1
+   isEmpty $playerPosition $playerSymbol $computerSymbol
+   checkWinConditions $playerSymbol
+   winningResult "PLAYER"
+   switchPlayer=1
 }
 
 #To switch the turn between Player and Computer
