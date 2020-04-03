@@ -2,19 +2,27 @@
 
 #Declaration of the Arrays and Dictionaries
 declare -a gameBoard
-declare -A corners
-declare -A sides
+declare -A cornersAndSides
 
 #Contants
-PLAY_FIRST=$((RANDOM%2))
+PLAY_FIRST=0
+TOTAL_PLAYERS=2
+TOTAL_CORNERS=4
+TOTAL_SIDES=4
+TOTAL_CELLS=9
 
 #To reset the Game Board
 function resetTheBoard() {
 	gameBoard=(0 1 2 3 4 5 6 7 8 9)
 }
 
+function getRandomNumbers() {
+	echo $((RANDOM%$1+$2))
+}
+
 #To assign a symbol to Player and Computer
 function tossAndAssignSymbols() {
+	PLAY_FIRST="$(getRandomNumbers $TOTAL_PLAYERS 0)"
 	if [ $PLAY_FIRST == 0 ]
 	then
 		echo "PLAYER plays First"
@@ -33,7 +41,7 @@ function tossAndAssignSymbols() {
 
 #To display to Game board
 function displayBoard() {
-	for ((i=1; i<=9; i=$(($i+3)) ))
+	for ((i=1; i<=$TOTAL_CELLS; i=$(($i+3)) ))
 	do
 		echo "-------------"
 		echo "| ${gameBoard[$i]} | ${gameBoard[$(($i+1))]} | ${gameBoard[$(($i+2))]} |"
@@ -53,7 +61,7 @@ function checkWinConditions(){
 
 #Check winning for Rows
 function winConditionForRows() {
-	for (( i=1; i<=9; i=$(($i+3 )) ))
+	for (( i=1; i<=$TOTAL_CELLS; i=$(($i+3 )) ))
 	do
 		if [[ ${gameBoard[$i]} == $symbol ]] && [[ ${gameBoard[$i]} == ${gameBoard[$i+1]} ]] && [[ ${gameBoard[$i+1]} == ${gameBoard[$i+2]} ]]
 		then
@@ -64,7 +72,7 @@ function winConditionForRows() {
 
 #Check winning for Columns
 function winConditionForColumns() {
-	for (( i=1; i<=9; i++ ))
+	for (( i=1; i<=$TOTAL_CELLS; i++ ))
 	do
 		if [[ ${gameBoard[$i]} == $symbol ]] && [[ ${gameBoard[$i]} == ${gameBoard[$i+3]} ]] && [[ ${gameBoard[$i+3]} == ${gameBoard[$i+6]} ]]
 		then
@@ -95,7 +103,7 @@ function winningResult() {
 
 #To check the win posibilities of computer and play the move
 function computerCheckWin() {
-	for ((j=1; j<=9; j++))
+	for ((j=1; j<=$TOTAL_CELLS; j++))
 	do
 		if [[ ${gameBoard[$j]} != $playerSymbol ]] && [[ ${gameBoard[$j]} != $computerSymbol ]]
 		then
@@ -114,7 +122,7 @@ function computerCheckWin() {
 
 #To check if player can win, then plays to Block it
 function computerBlockPlayer() {
-	for ((k=1; k<=9; k++))
+	for ((k=1; k<=$TOTAL_CELLS; k++))
 	do
 		if [[ ${gameBoard[$k]} != $playerSymbol ]] && [[ ${gameBoard[$k]} != $computerSymbol ]]
 		then
@@ -135,16 +143,21 @@ function computerBlockPlayer() {
 	done
 }
 
+#Assign corners and sides to Dictionary
+function cornersAndSidesDictionary() {
+	cornersAndSides[1]=$1
+	cornersAndSides[2]=$2
+	cornersAndSides[3]=$3
+	cornersAndSides[4]=$4
+}
+
 #To let the computer to take of the corners
 function computerTakeCorners() {
-	corners[1]=1
-	corners[2]=3
-	corners[3]=7
-	corners[4]=9
+	cornersAndSidesDictionary 1 3 7 9
 	if [[ ${gameBoard[1]} != $playerSymbol && ${gameBoard[1]} != $computerSymbol ]] || [[ ${gameBoard[3]} != $playerSymbol && ${gameBoard[3]} != $computerSymbol ]] || [[  ${gameBoard[7]} != $playerSymbol && ${gameBoard[7]} != $computerSymbol ]] || [[ ${gameBoard[9]} != $playerSymbol && ${gameBoard[9]} != $computerSymbol ]]
 	then
-		random=$((RANDOM%4+1))
-		cornerPosition=${corners[$random]}
+		randomCorners="$(getRandomNumbers $TOTAL_CORNERS 1)"
+		cornerPosition=${cornersAndSides[$randomCorners]}
 		echo "Its Computer's turn. Computer's move(corners): $cornerPosition"
 		isEmptyCell $cornerPosition
 		insertSymbol $cornerPosition $computerSymbol
@@ -165,14 +178,11 @@ function computerTakeCentre(){
 
 #To let the computer take of the availabe sides
 function computerTakeSides(){
-	sides[1]=2
-	sides[2]=4
-	sides[3]=6
-	sides[4]=8
+	cornersAndSidesDictionary 2 4 6 8
 	if [[ ${gameBoard[2]} != $playerSymbol && ${gameBoard[2]} != $computerSymbol ]] || [[ ${gameBoard[4]} != $playerSymbol && ${gameBoard[4]} != $computerSymbol ]] || [[  ${gameBoard[6]} != $playerSymbol && ${gameBoard[6]} != $computerSymbol ]] || [[ ${gameBoard[8]} != $playerSymbol && ${gameBoard[8]} != $computerSymbol ]]
 	then
-		randomSide=$((RANDOM%4+1))
-		sidePosition=${sides[$randomSide]}
+		randomSides="$(getRandomNumbers $TOTAL_SIDES 1)"
+		sidePosition=${cornersAndSides[$randomSides]}
 		echo "Its Computer's turn. Computer's move(sides): $sidePosition"
 		isEmptyCell $sidePosition
 		insertSymbol $sidePosition $computerSymbol
@@ -193,7 +203,7 @@ function insertSymbol() {
 #To check if the entered position is valid
 function isvalidCell() {
 	local position=$1
-	if [[ $position -gt 9 ]] || [[ $position -lt 1 ]]
+	if [[ $position -gt $TOTAL_CELLS ]] || [[ $position -lt 1 ]]
 	then
 		echo "Invalid position!!"
 		switchThePlayers
@@ -232,7 +242,7 @@ function playersTurn() {
 
 #To check for tie condtion
 function checkTie() {
-	if [[ $count == 9 ]]
+	if [[ $count == $TOTAL_CELLS ]]
 	then
 		echo -e "Its a TIE!\n"
 		exit
@@ -241,7 +251,7 @@ function checkTie() {
 
 #To switch the turn between Player and Computer
 function switchThePlayers() {
-	while [[ $count != 9 ]]
+	while [[ $count != $TOTAL_CELLS ]]
 	do
 		if [[ $switchPlayer == 0 ]]
 		then
