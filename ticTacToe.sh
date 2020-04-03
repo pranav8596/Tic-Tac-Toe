@@ -21,16 +21,23 @@ function getRandomNumbers() {
 }
 
 #To assign a symbol to Player and Computer
-function tossAndAssignSymbols() {
+function tossToCheckWhoPlaysFirst() {
 	PLAY_FIRST="$(getRandomNumbers $TOTAL_PLAYERS 0)"
 	if [ $PLAY_FIRST == 0 ]
 	then
 		echo "PLAYER plays First"
+	else
+		echo "COMPUTER plays First"
+	fi
+}
+
+function assignSymbols() {
+	if [ $PLAY_FIRST == 0 ]
+	then
 		switchPlayer=0
 		playerSymbol=X
 		computerSymbol=O
 	else
-		echo "COMPUTER plays First"
 		switchPlayer=1
 		playerSymbol=O
 		computerSymbol=X
@@ -266,7 +273,8 @@ function switchThePlayers() {
 #To start the Tic Toc Toe Game Play
 function ticTacToeGame() {
 	resetTheBoard
-	tossAndAssignSymbols
+	tossToCheckWhoPlaysFirst
+	assignSymbols
 	displayBoard
 	switchThePlayers
 }
