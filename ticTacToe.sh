@@ -10,6 +10,7 @@ TOTAL_PLAYERS=2
 TOTAL_CORNERS=4
 TOTAL_SIDES=4
 TOTAL_CELLS=9
+CENTRE=5
 
 #To reset the Game Board
 function resetTheBoard() {
@@ -177,10 +178,9 @@ function computerTakeCorners() {
 
 #To let the computer take centre
 function computerTakeCentre(){
-	center=5
-	isEmptyCell $center
-	echo "Its Computer's turn. Computer's move(centre): $center"
-	insertSymbol $center $computerSymbol
+	isEmptyCell $CENTRE
+	echo "Its Computer's turn. Computer's move(centre): $CENTRE"
+	insertSymbol $CENTRE $computerSymbol
 	switchPlayer=0
 	switchThePlayers
 }
