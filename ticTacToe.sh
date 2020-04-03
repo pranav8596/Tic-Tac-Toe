@@ -16,6 +16,7 @@ function resetTheBoard() {
 	gameBoard=(0 1 2 3 4 5 6 7 8 9)
 }
 
+#To get random values 
 function getRandomNumbers() {
 	echo $((RANDOM%$1+$2))
 }
@@ -31,6 +32,7 @@ function tossToCheckWhoPlaysFirst() {
 	fi
 }
 
+#Assign symbols for player and computer
 function assignSymbols() {
 	if [ $PLAY_FIRST == 0 ]
 	then
